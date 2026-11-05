@@ -38,7 +38,7 @@
             text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
         }
 
-        /* 悬浮音乐按钮 */
+        /* 右上角悬浮音乐按钮 */
         #music-btn {
             position: fixed;
             top: 20px;
@@ -176,10 +176,9 @@
 </head>
 
 <body>
-    <!-- 👇 背景音乐 👇 -->
+    <!-- 音乐标签 -->
     <audio id="bg-music" loop>
-        <!-- 换了一个国内极度稳定的测试音频，绝对能加载 -->
-        <source src="https://music.163.com/song/media/outer/url?id=1901371647.mp3" type="audio/mpeg">
+        <source src="/uploads/BGM.mp3" type="audio/mpeg">
     </audio>
     <div id="music-btn" onclick="toggleMusic()" title="点击播放/暂停音乐">🎵</div>
 
@@ -197,7 +196,7 @@
     <div id="gallery" class="gallery"></div>
 
     <script>
-        // ================= 音乐播放逻辑 =================
+        // 音乐控制
         const audio = document.getElementById('bg-music');
         const musicBtn = document.getElementById('music-btn');
         let isPlaying = false;
@@ -209,21 +208,18 @@
                 musicBtn.innerHTML = '🎵';
                 isPlaying = false;
             } else {
-                // 使用 Promise 捕获可能的播放错误（比如浏览器拦截）
                 audio.play().then(() => {
                     musicBtn.classList.add('playing');
                     musicBtn.innerHTML = '🎶';
                     isPlaying = true;
                 }).catch(err => {
-                    alert("浏览器拦截了播放，请多点几次，或者检查网络。\n错误：" + err.message);
+                    alert("浏览器拦截了播放，请多点几次，或者检查文件路径。");
                 });
             }
         }
 
-        // ================= 恋爱倒计时 =================
-        // 2026年4月24日 (注意月份从0开始算，4月是3)
+        // 倒计时
         const startDate = new Date(2026, 3, 24, 0, 0, 0);
-
         function updateTimer() {
             const now = new Date();
             const diff = now - startDate;
@@ -237,7 +233,7 @@
         setInterval(updateTimer, 1000);
         updateTimer();
 
-        // ================= 照片加载与上传 =================
+        // 照片墙
         async function loadPhotos() {
             const response = await fetch('/api/photos');
             const result = await response.json();
@@ -264,41 +260,29 @@
             const file = document.getElementById('fileInput').files[0];
             const password = document.getElementById('passwordInput').value;
             if (!title || !file || !password) {alert("名字、图片和暗号都要填哦！"); return;}
-
             const formData = new FormData();
             formData.append('title', title);
             formData.append('file', file);
             formData.append('password', password);
-
             const response = await fetch('/api/upload', {method: 'POST', body: formData});
             const result = await response.json();
-
             if (response.ok) {
                 alert('上传成功！');
                 document.getElementById('titleInput').value = '';
                 document.getElementById('fileInput').value = '';
                 loadPhotos();
-            } else {
-                alert(result.detail);
-            }
+            } else {alert(result.detail);}
         }
 
         async function deletePhoto(id) {
             const password = document.getElementById('passwordInput').value;
             if (!password) {alert("请先在上方输入暗号，才能删除哦！"); return;}
             if (!confirm("确定要删除这张照片吗？")) return;
-
             const response = await fetch(`/api/photos/${id}?password=${password}`, {method: 'DELETE'});
             const result = await response.json();
-
-            if (response.ok) {
-                alert('删除成功！');
-                loadPhotos();
-            } else {
-                alert(result.detail);
-            }
+            if (response.ok) {alert('删除成功！'); loadPhotos();}
+            else {alert(result.detail);}
         }
-
         window.onload = loadPhotos;
     </script>
 </body>
