@@ -1,287 +1,306 @@
-cat > /opt/album/index.html << 'EOF' <!DOCTYPE html>
-    <html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="zh-CN">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>我们的专属相册</title>
-        <style>
-            body {
-                font-family: 'Microsoft YaHei', sans-serif;
-                background: linear-gradient(120deg, #fce4ec, #f8bbd0, #fce4ec);
-                background-size: 200% 200%;
-                animation: gradientBG 10s ease infinite;
-                text-align: center;
-                padding: 20px;
-                margin: 0;
-                min-height: 100vh;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的专属相册</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(120deg, #fce4ec, #f8bbd0, #fce4ec);
+            background-size: 200% 200%;
+            animation: gradientBG 10s ease infinite;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
             }
 
-            @keyframes gradientBG {
-                0% {
-                    background-position: 0% 50%;
-                }
-
-                50% {
-                    background-position: 100% 50%;
-                }
-
-                100% {
-                    background-position: 0% 50%;
-                }
+            50% {
+                background-position: 100% 50%;
             }
 
-            h1 {
-                color: #d81b60;
-                font-size: 2.5rem;
-                margin-bottom: 10px;
-                text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+            100% {
+                background-position: 0% 50%;
             }
+        }
 
-            /* 音乐按钮的样式 */
-            #music-btn {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                width: 50px;
-                height: 50px;
-                background-color: rgba(255, 255, 255, 0.8);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-                cursor: pointer;
-                font-size: 24px;
-                transition: 0.3s;
-                z-index: 1000;
+        h1 {
+            color: #d81b60;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        /* 悬浮音乐按钮 */
+        #music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            font-size: 24px;
+            transition: 0.3s;
+            z-index: 1000;
+        }
+
+        #music-btn:hover {
+            transform: scale(1.1);
+            background-color: #fff;
+        }
+
+        .playing {
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
             }
+        }
 
-            #music-btn:hover {
-                transform: scale(1.1);
-                background-color: #fff;
-            }
+        #timer {
+            font-size: 1.1rem;
+            color: #ad1457;
+            margin-bottom: 30px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.7);
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(5px);
+        }
 
-            /* 播放时的旋转动画 */
-            .playing {
-                animation: spin 3s linear infinite;
-            }
+        .upload-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+        }
 
-            @keyframes spin {
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
+        input,
+        button {
+            margin: 8px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: inherit;
+            outline: none;
+        }
 
-            #timer {
-                font-size: 1.1rem;
-                color: #ad1457;
-                margin-bottom: 30px;
-                font-weight: bold;
-                background: rgba(255, 255, 255, 0.7);
-                display: inline-block;
-                padding: 12px 25px;
-                border-radius: 30px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-                backdrop-filter: blur(5px);
-            }
+        input:focus {
+            border-color: #d81b60;
+        }
 
-            .upload-box {
-                background: rgba(255, 255, 255, 0.95);
-                padding: 25px;
-                border-radius: 15px;
-                display: inline-block;
-                margin-bottom: 40px;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                max-width: 90%;
-            }
+        button {
+            background-color: #d81b60;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
 
-            input,
-            button {
-                margin: 8px;
-                padding: 10px;
-                border-radius: 8px;
-                border: 1px solid #ddd;
-                font-family: inherit;
-                outline: none;
-            }
+        button:hover {
+            background-color: #ad1457;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(216, 27, 96, 0.4);
+        }
 
-            input:focus {
-                border-color: #d81b60;
-            }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+        }
 
-            button {
-                background-color: #d81b60;
-                color: white;
-                border: none;
-                cursor: pointer;
-                transition: 0.3s;
-                font-weight: bold;
-            }
+        .card {
+            background: white;
+            padding: 15px 15px 25px 15px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
 
-            button:hover {
-                background-color: #ad1457;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 10px rgba(216, 27, 96, 0.4);
-            }
+        .card:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
 
-            .gallery {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 30px;
-            }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 3px;
+            border: 1px solid #eee;
+        }
 
-            .card {
-                background: white;
-                padding: 15px 15px 25px 15px;
-                border-radius: 5px;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                width: 250px;
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                position: relative;
-            }
+        .card h3 {
+            margin: 15px 0 10px;
+            color: #333;
+            font-size: 1.1rem;
+        }
 
-            .card:hover {
-                transform: scale(1.05) rotate(2deg);
-                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-                z-index: 10;
-            }
+        .delete-btn {
+            background-color: #999;
+            font-size: 12px;
+            padding: 6px 12px;
+            margin-top: 0;
+        }
 
-            .card img {
-                width: 100%;
-                height: 200px;
-                object-fit: cover;
-                border-radius: 3px;
-                border: 1px solid #eee;
-            }
+        .delete-btn:hover {
+            background-color: #666;
+            box-shadow: none;
+        }
+    </style>
+</head>
 
-            .card h3 {
-                margin: 15px 0 10px;
-                color: #333;
-                font-size: 1.1rem;
-            }
+<body>
+    <!-- 👇 背景音乐 👇 -->
+    <audio id="bg-music" loop>
+        <!-- 换了一个国内极度稳定的测试音频，绝对能加载 -->
+        <source src="https://music.163.com/song/media/outer/url?id=1901371647.mp3" type="audio/mpeg">
+    </audio>
+    <div id="music-btn" onclick="toggleMusic()" title="点击播放/暂停音乐">🎵</div>
 
-            .delete-btn {
-                background-color: #999;
-                font-size: 12px;
-                padding: 6px 12px;
-                margin-top: 0;
-            }
+    <h1>💕 我们的专属相册 💕</h1>
+    <div id="timer">正在计算相爱的时光...</div>
 
-            .delete-btn:hover {
-                background-color: #666;
-                box-shadow: none;
-            }
-        </style>
-    </head>
+    <div class="upload-box">
+        <h3>上传新回忆</h3>
+        <input type="text" id="titleInput" placeholder="给这张照片起个名字..."><br>
+        <input type="file" id="fileInput" accept="image/*"><br>
+        <input type="password" id="passwordInput" placeholder="输入暗号才能操作哦..."><br>
+        <button onclick="uploadPhoto()">上传照片</button>
+    </div>
 
-    <body>
-        <!-- 👇 音乐播放器核心代码 👇 -->
-        <!-- src 里面填你的音乐链接 -->
-        <audio id="bg-music" loop>
-            <!-- 换成这个稳定的测试音频 -->
-            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-        </audio>
-        <div id="music-btn" onclick="toggleMusic()" title="点击播放/暂停音乐">🎵</div>
-        <!-- 👆 音乐播放器核心代码 👆 -->
+    <div id="gallery" class="gallery"></div>
 
-        <h1>💕 我们的专属相册 💕</h1>
-        <div id="timer">正在计算相爱的时光...</div>
-        <div class="upload-box">
-            <h3>上传新回忆</h3>
-            <input type="text" id="titleInput" placeholder="给这张照片起个名字..."><br>
-            <input type="file" id="fileInput" accept="image/*"><br>
-            <input type="password" id="passwordInput" placeholder="输入暗号才能操作哦..."><br>
-            <button onclick="uploadPhoto()">上传照片</button>
-        </div>
-        <div id="gallery" class="gallery"></div>
+    <script>
+        // ================= 音乐播放逻辑 =================
+        const audio = document.getElementById('bg-music');
+        const musicBtn = document.getElementById('music-btn');
+        let isPlaying = false;
 
-        <script>
-            // 👇 音乐播放逻辑 👇
-            const audio = document.getElementById('bg-music');
-            const musicBtn = document.getElementById('music-btn');
-            let isPlaying = false;
-
-            function toggleMusic() {
-                if (isPlaying) {
-                    audio.pause();
-                    musicBtn.classList.remove('playing');
-                    musicBtn.innerHTML = '🎵';
-                } else {
-                    audio.play();
+        function toggleMusic() {
+            if (isPlaying) {
+                audio.pause();
+                musicBtn.classList.remove('playing');
+                musicBtn.innerHTML = '🎵';
+                isPlaying = false;
+            } else {
+                // 使用 Promise 捕获可能的播放错误（比如浏览器拦截）
+                audio.play().then(() => {
                     musicBtn.classList.add('playing');
                     musicBtn.innerHTML = '🎶';
-                }
-                isPlaying = !isPlaying;
+                    isPlaying = true;
+                }).catch(err => {
+                    alert("浏览器拦截了播放，请多点几次，或者检查网络。\n错误：" + err.message);
+                });
             }
+        }
 
-            // 纪念日
-            const startDate = new Date(2026, 3, 24, 0, 0, 0);
+        // ================= 恋爱倒计时 =================
+        // 2026年4月24日 (注意月份从0开始算，4月是3)
+        const startDate = new Date(2026, 3, 24, 0, 0, 0);
 
-            function updateTimer() {
-                const now = new Date();
-                const diff = now - startDate;
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const minutes = Math.floor((diff / 1000 / 60) % 60);
-                const seconds = Math.floor((diff / 1000) % 60);
-                document.getElementById('timer').innerHTML =
-                    `我们已经在一起 <span style="font-size:1.6rem;color:#d81b60;">${days}</span> 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒啦`;
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            document.getElementById('timer').innerHTML =
+                `我们已经在一起 <span style="font-size:1.6rem;color:#d81b60;">${days}</span> 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒啦`;
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // ================= 照片加载与上传 =================
+        async function loadPhotos() {
+            const response = await fetch('/api/photos');
+            const result = await response.json();
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            if (result.data.length === 0) {
+                gallery.innerHTML = '<p style="width:100%; color:#666;">还没有照片，快上传第一张吧！</p>';
+                return;
             }
-            setInterval(updateTimer, 1000);
-            updateTimer();
-
-            async function loadPhotos() {
-                const response = await fetch('/api/photos');
-                const result = await response.json();
-                const gallery = document.getElementById('gallery');
-                gallery.innerHTML = '';
-                if (result.data.length === 0) {
-                    gallery.innerHTML = '<p style="width:100%; color:#666;">还没有照片，快上传第一张吧！</p>';
-                    return;
-                }
-                result.data.forEach(photo => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
+            result.data.forEach(photo => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
                     <img src="${photo.url}" alt="${photo.title}">
                     <h3>${photo.title}</h3>
                     <button class="delete-btn" onclick="deletePhoto(${photo.id})">删除</button>
                 `;
-                    gallery.appendChild(card);
-                });
-            }
-            async function uploadPhoto() {
-                const title = document.getElementById('titleInput').value;
-                const file = document.getElementById('fileInput').files[0];
-                const password = document.getElementById('passwordInput').value;
-                if (!title || !file || !password) {alert("名字、图片和暗号都要填哦！"); return;}
-                const formData = new FormData();
-                formData.append('title', title);
-                formData.append('file', file);
-                formData.append('password', password);
-                const response = await fetch('/api/upload', {method: 'POST', body: formData});
-                const result = await response.json();
-                if (response.ok) {
-                    alert('上传成功！');
-                    document.getElementById('titleInput').value = '';
-                    document.getElementById('fileInput').value = '';
-                    loadPhotos();
-                } else {alert(result.detail);}
-            }
-            async function deletePhoto(id) {
-                const password = document.getElementById('passwordInput').value;
-                if (!password) {alert("请先在上方输入暗号，才能删除哦！"); return;}
-                if (!confirm("确定要删除这张照片吗？")) return;
-                const response = await fetch(`/api/photos/${id}?password=${password}`, {method: 'DELETE'});
-                const result = await response.json();
-                if (response.ok) {alert('删除成功！'); loadPhotos();}
-                else {alert(result.detail);}
-            }
-            window.onload = loadPhotos;
-        </script>
-    </body>
+                gallery.appendChild(card);
+            });
+        }
 
-    </html>
-    EOF
+        async function uploadPhoto() {
+            const title = document.getElementById('titleInput').value;
+            const file = document.getElementById('fileInput').files[0];
+            const password = document.getElementById('passwordInput').value;
+            if (!title || !file || !password) {alert("名字、图片和暗号都要填哦！"); return;}
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('file', file);
+            formData.append('password', password);
+
+            const response = await fetch('/api/upload', {method: 'POST', body: formData});
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('上传成功！');
+                document.getElementById('titleInput').value = '';
+                document.getElementById('fileInput').value = '';
+                loadPhotos();
+            } else {
+                alert(result.detail);
+            }
+        }
+
+        async function deletePhoto(id) {
+            const password = document.getElementById('passwordInput').value;
+            if (!password) {alert("请先在上方输入暗号，才能删除哦！"); return;}
+            if (!confirm("确定要删除这张照片吗？")) return;
+
+            const response = await fetch(`/api/photos/${id}?password=${password}`, {method: 'DELETE'});
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('删除成功！');
+                loadPhotos();
+            } else {
+                alert(result.detail);
+            }
+        }
+
+        window.onload = loadPhotos;
+    </script>
+</body>
+
+</html>
