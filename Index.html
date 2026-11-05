@@ -3,34 +3,79 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我们的专属相册</title>
     <style>
+        /* 渐变流动背景特效 */
         body {
             font-family: 'Microsoft YaHei', sans-serif;
-            background-color: #fce4ec;
+            background: linear-gradient(120deg, #fce4ec, #f8bbd0, #fce4ec);
+            background-size: 200% 200%;
+            animation: gradientBG 10s ease infinite;
             text-align: center;
             padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         h1 {
             color: #d81b60;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
         }
 
-        .upload-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
+        /* 恋爱计时器样式 */
+        #timer {
+            font-size: 1.1rem;
+            color: #ad1457;
+            margin-bottom: 30px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.7);
             display: inline-block;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 12px 25px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(5px);
+        }
+
+        /* 上传框美化 */
+        .upload-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
         }
 
         input,
         button {
-            margin: 5px;
-            padding: 8px;
-            border-radius: 5px;
+            margin: 8px;
+            padding: 10px;
+            border-radius: 8px;
             border: 1px solid #ddd;
+            font-family: inherit;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #d81b60;
         }
 
         button {
@@ -38,48 +83,67 @@
             color: white;
             border: none;
             cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
         }
 
         button:hover {
             background-color: #ad1457;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(216, 27, 96, 0.4);
         }
 
-        .delete-btn {
-            background-color: #777;
-            font-size: 12px;
-            padding: 4px 8px;
-            margin-top: 5px;
-        }
-
-        .delete-btn:hover {
-            background-color: #555;
-        }
-
+        /* 照片墙美化 */
         .gallery {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
+            gap: 30px;
         }
 
+        /* 拍立得相框效果 */
         .card {
             background: white;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px 15px 25px 15px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             width: 250px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* 弹簧悬浮效果 */
+            position: relative;
+        }
+
+        /* 鼠标悬浮时的特效 */
+        .card:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            z-index: 10;
         }
 
         .card img {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            border-radius: 5px;
+            border-radius: 3px;
+            border: 1px solid #eee;
         }
 
         .card h3 {
-            margin: 10px 0 5px;
+            margin: 15px 0 10px;
             color: #333;
+            font-size: 1.1rem;
+        }
+
+        .delete-btn {
+            background-color: #999;
+            font-size: 12px;
+            padding: 6px 12px;
+            margin-top: 0;
+        }
+
+        .delete-btn:hover {
+            background-color: #666;
+            box-shadow: none;
         }
     </style>
 </head>
@@ -87,6 +151,9 @@
 <body>
 
     <h1>💕 我们的专属相册 💕</h1>
+
+    <!-- 恋爱计时器容器 -->
+    <div id="timer">正在计算相爱的时光...</div>
 
     <!-- 上传区域 -->
     <div class="upload-box">
@@ -101,6 +168,27 @@
     <div id="gallery" class="gallery"></div>
 
     <script>
+        // =====================================================================
+        // ⚠️ 注意：这里修改你们的恋爱纪念日 (年, 月-1, 日, 时, 分)。
+        // ⚠️ 重点：月份是从 0 开始算的！比如 2023年10月1日，要写成 (2023, 9, 1)
+        // =====================================================================
+        const startDate = new Date(2023, 0, 1, 0, 0, 0);
+
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            document.getElementById('timer').innerHTML =
+                `我们已经在一起 <span style="font-size:1.6rem;color:#d81b60;">${days}</span> 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒啦`;
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
         // 获取并显示照片
         async function loadPhotos() {
             const response = await fetch('/api/photos');
@@ -109,7 +197,7 @@
             gallery.innerHTML = '';
 
             if (result.data.length === 0) {
-                gallery.innerHTML = '<p>还没有照片，快上传第一张吧！</p>';
+                gallery.innerHTML = '<p style="width:100%; color:#666;">还没有照片，快上传第一张吧！</p>';
                 return;
             }
 
@@ -153,7 +241,7 @@
                 document.getElementById('fileInput').value = '';
                 loadPhotos();
             } else {
-                alert(result.detail); // 弹出后端返回的报错信息（比如密码错误）
+                alert(result.detail);
             }
         }
 
@@ -176,7 +264,7 @@
                 alert('删除成功！');
                 loadPhotos();
             } else {
-                alert(result.detail); // 弹出密码错误等提示
+                alert(result.detail);
             }
         }
 
