@@ -1,275 +1,287 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+cat > /opt/album/index.html << 'EOF' <!DOCTYPE html>
+    <html lang="zh-CN">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我们的专属相册</title>
-    <style>
-        /* 渐变流动背景特效 */
-        body {
-            font-family: 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(120deg, #fce4ec, #f8bbd0, #fce4ec);
-            background-size: 200% 200%;
-            animation: gradientBG 10s ease infinite;
-            text-align: center;
-            padding: 20px;
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>我们的专属相册</title>
+        <style>
+            body {
+                font-family: 'Microsoft YaHei', sans-serif;
+                background: linear-gradient(120deg, #fce4ec, #f8bbd0, #fce4ec);
+                background-size: 200% 200%;
+                animation: gradientBG 10s ease infinite;
+                text-align: center;
+                padding: 20px;
+                margin: 0;
+                min-height: 100vh;
             }
 
-            50% {
-                background-position: 100% 50%;
+            @keyframes gradientBG {
+                0% {
+                    background-position: 0% 50%;
+                }
+
+                50% {
+                    background-position: 100% 50%;
+                }
+
+                100% {
+                    background-position: 0% 50%;
+                }
             }
 
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        h1 {
-            color: #d81b60;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
-        }
-
-        /* 恋爱计时器样式 */
-        #timer {
-            font-size: 1.1rem;
-            color: #ad1457;
-            margin-bottom: 30px;
-            font-weight: bold;
-            background: rgba(255, 255, 255, 0.7);
-            display: inline-block;
-            padding: 12px 25px;
-            border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            backdrop-filter: blur(5px);
-        }
-
-        /* 上传框美化 */
-        .upload-box {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 25px;
-            border-radius: 15px;
-            display: inline-block;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            max-width: 90%;
-        }
-
-        input,
-        button {
-            margin: 8px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-family: inherit;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #d81b60;
-        }
-
-        button {
-            background-color: #d81b60;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background-color: #ad1457;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(216, 27, 96, 0.4);
-        }
-
-        /* 照片墙美化 */
-        .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-        }
-
-        /* 拍立得相框效果 */
-        .card {
-            background: white;
-            padding: 15px 15px 25px 15px;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 250px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            /* 弹簧悬浮效果 */
-            position: relative;
-        }
-
-        /* 鼠标悬浮时的特效 */
-        .card:hover {
-            transform: scale(1.05) rotate(2deg);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-        }
-
-        .card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 3px;
-            border: 1px solid #eee;
-        }
-
-        .card h3 {
-            margin: 15px 0 10px;
-            color: #333;
-            font-size: 1.1rem;
-        }
-
-        .delete-btn {
-            background-color: #999;
-            font-size: 12px;
-            padding: 6px 12px;
-            margin-top: 0;
-        }
-
-        .delete-btn:hover {
-            background-color: #666;
-            box-shadow: none;
-        }
-    </style>
-</head>
-
-<body>
-
-    <h1>💕 我们的专属相册 💕</h1>
-
-    <!-- 恋爱计时器容器 -->
-    <div id="timer">正在计算相爱的时光...</div>
-
-    <!-- 上传区域 -->
-    <div class="upload-box">
-        <h3>上传新回忆</h3>
-        <input type="text" id="titleInput" placeholder="给这张照片起个名字..."><br>
-        <input type="file" id="fileInput" accept="image/*"><br>
-        <input type="password" id="passwordInput" placeholder="输入暗号才能操作哦..."><br>
-        <button onclick="uploadPhoto()">上传照片</button>
-    </div>
-
-    <!-- 照片展示区域 -->
-    <div id="gallery" class="gallery"></div>
-
-    <script>
-        // =====================================================================
-        // ⚠️ 注意：这里修改你们的恋爱纪念日 (年, 月-1, 日, 时, 分)。
-        // ⚠️ 重点：月份是从 0 开始算的！比如 2023年10月1日，要写成 (2023, 9, 1)
-        // =====================================================================
-        const startDate = new Date(2026, 4, 24, 0, 0, 0);
-
-        function updateTimer() {
-            const now = new Date();
-            const diff = now - startDate;
-
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const minutes = Math.floor((diff / 1000 / 60) % 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-
-            document.getElementById('timer').innerHTML =
-                `我们已经在一起 <span style="font-size:1.6rem;color:#d81b60;">${days}</span> 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒啦`;
-        }
-        setInterval(updateTimer, 1000);
-        updateTimer();
-
-        // 获取并显示照片
-        async function loadPhotos() {
-            const response = await fetch('/api/photos');
-            const result = await response.json();
-            const gallery = document.getElementById('gallery');
-            gallery.innerHTML = '';
-
-            if (result.data.length === 0) {
-                gallery.innerHTML = '<p style="width:100%; color:#666;">还没有照片，快上传第一张吧！</p>';
-                return;
+            h1 {
+                color: #d81b60;
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+                text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
             }
 
-            result.data.forEach(photo => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
+            /* 音乐按钮的样式 */
+            #music-btn {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                background-color: rgba(255, 255, 255, 0.8);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+                font-size: 24px;
+                transition: 0.3s;
+                z-index: 1000;
+            }
+
+            #music-btn:hover {
+                transform: scale(1.1);
+                background-color: #fff;
+            }
+
+            /* 播放时的旋转动画 */
+            .playing {
+                animation: spin 3s linear infinite;
+            }
+
+            @keyframes spin {
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            #timer {
+                font-size: 1.1rem;
+                color: #ad1457;
+                margin-bottom: 30px;
+                font-weight: bold;
+                background: rgba(255, 255, 255, 0.7);
+                display: inline-block;
+                padding: 12px 25px;
+                border-radius: 30px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+                backdrop-filter: blur(5px);
+            }
+
+            .upload-box {
+                background: rgba(255, 255, 255, 0.95);
+                padding: 25px;
+                border-radius: 15px;
+                display: inline-block;
+                margin-bottom: 40px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                max-width: 90%;
+            }
+
+            input,
+            button {
+                margin: 8px;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #ddd;
+                font-family: inherit;
+                outline: none;
+            }
+
+            input:focus {
+                border-color: #d81b60;
+            }
+
+            button {
+                background-color: #d81b60;
+                color: white;
+                border: none;
+                cursor: pointer;
+                transition: 0.3s;
+                font-weight: bold;
+            }
+
+            button:hover {
+                background-color: #ad1457;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(216, 27, 96, 0.4);
+            }
+
+            .gallery {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 30px;
+            }
+
+            .card {
+                background: white;
+                padding: 15px 15px 25px 15px;
+                border-radius: 5px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                width: 250px;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                position: relative;
+            }
+
+            .card:hover {
+                transform: scale(1.05) rotate(2deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+                z-index: 10;
+            }
+
+            .card img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                border-radius: 3px;
+                border: 1px solid #eee;
+            }
+
+            .card h3 {
+                margin: 15px 0 10px;
+                color: #333;
+                font-size: 1.1rem;
+            }
+
+            .delete-btn {
+                background-color: #999;
+                font-size: 12px;
+                padding: 6px 12px;
+                margin-top: 0;
+            }
+
+            .delete-btn:hover {
+                background-color: #666;
+                box-shadow: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- 👇 音乐播放器核心代码 👇 -->
+        <!-- src 里面填你的音乐链接 -->
+        <audio id="bg-music" loop>
+            <!-- 换成这个稳定的测试音频 -->
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+        <div id="music-btn" onclick="toggleMusic()" title="点击播放/暂停音乐">🎵</div>
+        <!-- 👆 音乐播放器核心代码 👆 -->
+
+        <h1>💕 我们的专属相册 💕</h1>
+        <div id="timer">正在计算相爱的时光...</div>
+        <div class="upload-box">
+            <h3>上传新回忆</h3>
+            <input type="text" id="titleInput" placeholder="给这张照片起个名字..."><br>
+            <input type="file" id="fileInput" accept="image/*"><br>
+            <input type="password" id="passwordInput" placeholder="输入暗号才能操作哦..."><br>
+            <button onclick="uploadPhoto()">上传照片</button>
+        </div>
+        <div id="gallery" class="gallery"></div>
+
+        <script>
+            // 👇 音乐播放逻辑 👇
+            const audio = document.getElementById('bg-music');
+            const musicBtn = document.getElementById('music-btn');
+            let isPlaying = false;
+
+            function toggleMusic() {
+                if (isPlaying) {
+                    audio.pause();
+                    musicBtn.classList.remove('playing');
+                    musicBtn.innerHTML = '🎵';
+                } else {
+                    audio.play();
+                    musicBtn.classList.add('playing');
+                    musicBtn.innerHTML = '🎶';
+                }
+                isPlaying = !isPlaying;
+            }
+
+            // 纪念日
+            const startDate = new Date(2026, 3, 24, 0, 0, 0);
+
+            function updateTimer() {
+                const now = new Date();
+                const diff = now - startDate;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / 1000 / 60) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+                document.getElementById('timer').innerHTML =
+                    `我们已经在一起 <span style="font-size:1.6rem;color:#d81b60;">${days}</span> 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒啦`;
+            }
+            setInterval(updateTimer, 1000);
+            updateTimer();
+
+            async function loadPhotos() {
+                const response = await fetch('/api/photos');
+                const result = await response.json();
+                const gallery = document.getElementById('gallery');
+                gallery.innerHTML = '';
+                if (result.data.length === 0) {
+                    gallery.innerHTML = '<p style="width:100%; color:#666;">还没有照片，快上传第一张吧！</p>';
+                    return;
+                }
+                result.data.forEach(photo => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
                     <img src="${photo.url}" alt="${photo.title}">
                     <h3>${photo.title}</h3>
                     <button class="delete-btn" onclick="deletePhoto(${photo.id})">删除</button>
                 `;
-                gallery.appendChild(card);
-            });
-        }
-
-        // 上传照片
-        async function uploadPhoto() {
-            const title = document.getElementById('titleInput').value;
-            const file = document.getElementById('fileInput').files[0];
-            const password = document.getElementById('passwordInput').value;
-
-            if (!title || !file || !password) {
-                alert("名字、图片和暗号都要填哦！");
-                return;
+                    gallery.appendChild(card);
+                });
             }
-
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('file', file);
-            formData.append('password', password);
-
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                alert('上传成功！');
-                document.getElementById('titleInput').value = '';
-                document.getElementById('fileInput').value = '';
-                loadPhotos();
-            } else {
-                alert(result.detail);
+            async function uploadPhoto() {
+                const title = document.getElementById('titleInput').value;
+                const file = document.getElementById('fileInput').files[0];
+                const password = document.getElementById('passwordInput').value;
+                if (!title || !file || !password) {alert("名字、图片和暗号都要填哦！"); return;}
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('file', file);
+                formData.append('password', password);
+                const response = await fetch('/api/upload', {method: 'POST', body: formData});
+                const result = await response.json();
+                if (response.ok) {
+                    alert('上传成功！');
+                    document.getElementById('titleInput').value = '';
+                    document.getElementById('fileInput').value = '';
+                    loadPhotos();
+                } else {alert(result.detail);}
             }
-        }
-
-        // 删除照片
-        async function deletePhoto(id) {
-            const password = document.getElementById('passwordInput').value;
-            if (!password) {
-                alert("请先在上方输入暗号，才能删除哦！");
-                return;
+            async function deletePhoto(id) {
+                const password = document.getElementById('passwordInput').value;
+                if (!password) {alert("请先在上方输入暗号，才能删除哦！"); return;}
+                if (!confirm("确定要删除这张照片吗？")) return;
+                const response = await fetch(`/api/photos/${id}?password=${password}`, {method: 'DELETE'});
+                const result = await response.json();
+                if (response.ok) {alert('删除成功！'); loadPhotos();}
+                else {alert(result.detail);}
             }
+            window.onload = loadPhotos;
+        </script>
+    </body>
 
-            if (!confirm("确定要删除这张照片吗？")) return;
-
-            const response = await fetch(`/api/photos/${id}?password=${password}`, {
-                method: 'DELETE'
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                alert('删除成功！');
-                loadPhotos();
-            } else {
-                alert(result.detail);
-            }
-        }
-
-        window.onload = loadPhotos;
-    </script>
-</body>
-
-</html>
+    </html>
+    EOF
