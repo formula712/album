@@ -172,6 +172,27 @@
             background-color: #666;
             box-shadow: none;
         }
+                /* 公告栏样式 */
+        #notice-bar {
+            background: rgba(255, 255, 255, 0.95);
+            border-left: 5px solid #d81b60;
+            padding: 12px 20px;
+            margin: 0 auto 20px auto;
+            border-radius: 8px;
+            max-width: 600px;
+            display: none; /* 默认隐藏，JS会把它显示出来 */
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            color: #333;
+            font-size: 0.95rem;
+        }
+        #notice-bar span { font-weight: bold; color: #d81b60; }
+        #notice-close {
+            background: none; border: none; color: #999; font-size: 1.2rem; 
+            cursor: pointer; padding: 0; margin-left: 15px;
+        }
+        #notice-close:hover { color: #d81b60; box-shadow: none; transform: none;}
     </style>
 </head>
 
@@ -181,7 +202,13 @@
         <source src="/uploads/BGM.mp3" type="audio/mpeg">
     </audio>
     <div id="music-btn" onclick="toggleMusic()" title="点击播放/暂停音乐">🎵</div>
-
+        <!-- 更新公告栏 -->
+        <div id="notice-bar">
+            <div>
+                <span>📢 公告：</span><span id="notice-text"></span>
+            </div>
+            <button id="notice-close" onclick="closeNotice()">✕</button>
+        </div>
     <h1>💕 我们的专属相册 💕</h1>
     <div id="timer">正在计算相爱的时光...</div>
 
@@ -196,6 +223,30 @@
     <div id="gallery" class="gallery"></div>
 
     <script>
+                // ================= 更新公告逻辑 =================
+                    // 👇 每次发新公告，修改这里的文字，并且把版本号 +1
+                    const currentNoticeVersion = "v1.1";
+                    const currentNoticeText = "新增了我们的专属背景音乐，倒计时精确到秒啦！";
+
+                    function checkNotice() {
+                        if (!currentNoticeText) return;
+                        const readVersion = localStorage.getItem('notice_version');
+                        // 如果本地记录的版本号和当前版本不一致，说明有未读公告
+                        if (readVersion !== currentNoticeVersion) {
+                            document.getElementById('notice-text').innerText = currentNoticeText;
+                            document.getElementById('notice-bar').style.display = 'flex';
+                        }
+                    }
+
+                    function closeNotice() {
+                        document.getElementById('notice-bar').style.display = 'none';
+                        // 记住用户已经读过了这个版本
+                        localStorage.setItem('notice_version', currentNoticeVersion);
+                    }
+
+                    // 页面加载时检查一次
+                    window.addEventListener('DOMContentLoaded', checkNotice);
+                    // ================================================
         // 音乐控制
         const audio = document.getElementById('bg-music');
         const musicBtn = document.getElementById('music-btn');
